@@ -1,0 +1,39 @@
+services:
+  gateway:
+    build:
+      context: rest
+      args:
+        - JAR_FILE=./build/libs/*.jar
+    ports:
+      - "4000:8080"
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=secret
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      start_period: 15s
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  mongo-express:
+    image: mongo-express:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=secret
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+
+# Define named volumes
+volumes:
+  mongo-data:
+    driver: local
