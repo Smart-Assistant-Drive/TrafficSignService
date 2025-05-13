@@ -3,8 +3,10 @@ package com.example.rest.interfaceAdaptersLayer.controllers.dto.createSign
 import com.example.rest.businessLayer.adapter.sign.SignModel
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.hateoas.Link
+import org.springframework.hateoas.RepresentationModel
 
-data class SignRequestDto
+data class SignResponseDto
     @JsonCreator
     constructor(
         @param:JsonProperty("type")
@@ -25,10 +27,10 @@ data class SignRequestDto
         val speedLimit: Int?,
         @param:JsonProperty("unit")
         val unit: String?,
-    )
+    ) : RepresentationModel<SignResponseDto>()
 
-fun SignRequestDto.toModel(): SignModel =
-    SignModel(
+fun SignModel.toDto(links: List<Link>): SignResponseDto =
+    SignResponseDto(
         type = type,
         category = category,
         idRoad = idRoad,
@@ -38,4 +40,4 @@ fun SignRequestDto.toModel(): SignModel =
         lanes = lanes,
         speedLimit = speedLimit,
         unit = unit,
-    )
+    ).add(links)

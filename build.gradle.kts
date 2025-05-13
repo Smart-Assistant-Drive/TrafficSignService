@@ -23,7 +23,7 @@ buildscript {
 }
 
 allprojects {
-    apply(plugin = "org.danilopianini.gradle-kotlin-qa")
+    // apply(plugin = "org.danilopianini.gradle-kotlin-qa")
 }
 
 repositories {

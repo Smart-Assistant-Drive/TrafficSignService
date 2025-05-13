@@ -15,7 +15,7 @@ spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "spring-dependency-management" }
 dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
 gitSemVer = { id = "org.danilopianini.git-sensitive-semantic-versioning-gradle-plugin", version.ref = "gitSemVer" }
-kotlin-qa = { id = "org.danilopianini.gradle-kotlin-qa", version = "0.67.2" }
+kotlin-qa = { id = "org.danilopianini.gradle-kotlin-qa", version = "0.86.1" }
 taskTree = { id = "com.dorongold.task-tree", version = "4.0.0" }
 
 

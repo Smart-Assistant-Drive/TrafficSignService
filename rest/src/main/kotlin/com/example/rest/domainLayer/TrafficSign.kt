@@ -10,7 +10,7 @@ interface TrafficSign {
     val trafficSignType: TrafficSignType
     // val integrationPanel: List<IntegrationPanel>,
 
-    data class TrafficSignImpl(
+    private data class TrafficSignImpl(
         override val roadId: Int,
         override val directionId: Int,
         override val geoLocationPosition: GeoLocationPosition,
@@ -38,6 +38,6 @@ interface TrafficSign {
         fun trafficSignType(trafficSignType: TrafficSignType) = apply { this.trafficSignType = trafficSignType }
         // fun integrationPanel(integrationPanel: List<IntegrationPanel>) = apply { this.integrationPanel = integrationPanel }
 
-        fun build() = TrafficSignImpl(roadId, directionId, geoLocationPosition, laneReference, trafficSignType)
+        fun build(): TrafficSign = TrafficSignImpl(roadId, directionId, geoLocationPosition, laneReference, trafficSignType)
     }
 }

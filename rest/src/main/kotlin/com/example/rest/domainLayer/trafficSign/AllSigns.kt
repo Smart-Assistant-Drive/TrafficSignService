@@ -1,17 +1,18 @@
 package com.example.rest.domainLayer.trafficSign
 
 object AllSigns {
-    val listOfSigns =
+    val listOfType =
         listOf(
             "NoEntrySign",
-            "SpeedLimitSign",
+            "MaxSpeedLimitSign",
+            "MinSpeedLimitSign",
             "YieldSign",
             "StopSign",
-            "TrafficLight",
+            /*"TrafficLight",
             "PedestrianCrossingSign",
             "NoParkingSign",
             "OneWaySign",
             "RoundaboutSign",
-            "TrafficCircleSign",
+            "TrafficCircleSign",*/
         )
 }

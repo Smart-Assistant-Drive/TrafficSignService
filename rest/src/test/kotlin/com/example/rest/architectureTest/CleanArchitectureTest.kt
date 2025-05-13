@@ -5,34 +5,45 @@ import com.tngtech.archunit.library.Architectures.layeredArchitecture
 import kotlin.test.Test
 
 class CleanArchitectureTest {
-
     @Test
     fun layerDependencies() {
         val importedClasses = ClassFileImporter().importPackages("com.example.rest")
-        val cleanArchitecture = layeredArchitecture()
-            .consideringOnlyDependenciesInLayers()
-            .layer("Domain").definedBy("..domainLayer..")
-            .layer("Business").definedBy("..businessLayer..")
-            .layer("Adapter").definedBy("..interfaceAdaptersLayer..")
-            .whereLayer("Adapter").mayNotBeAccessedByAnyLayer()
-            .whereLayer("Business").mayOnlyBeAccessedByLayers("Adapter")
-            .whereLayer("Domain").mayOnlyBeAccessedByLayers("Business", "Adapter")
+        val cleanArchitecture =
+            layeredArchitecture()
+                .consideringOnlyDependenciesInLayers()
+                .layer("Domain")
+                .definedBy("..domainLayer..")
+                .layer("Business")
+                .definedBy("..businessLayer..")
+                .layer("Adapter")
+                .definedBy("..interfaceAdaptersLayer..")
+                .whereLayer("Adapter")
+                .mayNotBeAccessedByAnyLayer()
+                .whereLayer("Business")
+                .mayOnlyBeAccessedByLayers("Adapter")
+                .whereLayer("Domain")
+                .mayOnlyBeAccessedByLayers("Business", "Adapter")
         cleanArchitecture.check(importedClasses)
     }
 
     @Test
     fun everythingPassThroughBusinessLayer() {
         val importedClasses = ClassFileImporter().importPackages("com.example.rest")
-        val ruleEverythingPassThroughBusinessLayer = layeredArchitecture()
-            .consideringOnlyDependenciesInLayers()
-            .layer("Business").definedBy("..businessLayer..")
-            .layer("Controller").definedBy("..interfaceAdaptersLayer.controllers..")
-            .layer("Persistence").definedBy("..interfaceAdaptersLayer.persistence..")
-            .layer("Security").definedBy("..interfaceAdaptersLayer.security..")
-            .whereLayer("Persistence").mayNotBeAccessedByAnyLayer()
-            .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
-            .whereLayer("Security").mayNotBeAccessedByAnyLayer()
-            .whereLayer("Business").mayOnlyBeAccessedByLayers("Controller", "Persistence", "Security")
+        val ruleEverythingPassThroughBusinessLayer =
+            layeredArchitecture()
+                .consideringOnlyDependenciesInLayers()
+                .layer("Business")
+                .definedBy("..businessLayer..")
+                .layer("Controller")
+                .definedBy("..interfaceAdaptersLayer.controllers..")
+                .layer("Persistence")
+                .definedBy("..interfaceAdaptersLayer.persistence..")
+                .whereLayer("Persistence")
+                .mayNotBeAccessedByAnyLayer()
+                .whereLayer("Controller")
+                .mayNotBeAccessedByAnyLayer()
+                .whereLayer("Business")
+                .mayOnlyBeAccessedByLayers("Controller", "Persistence")
         ruleEverythingPassThroughBusinessLayer.check(importedClasses)
     }
 }

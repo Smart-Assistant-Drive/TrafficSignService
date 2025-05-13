@@ -1,12 +1,7 @@
 package com.example.rest.interfaceAdaptersLayer.controllers
 
 import com.example.rest.businessLayer.boundaries.SignsInputBoundary
-import com.example.rest.businessLayer.exception.InvalidTokenException
-import com.example.rest.businessLayer.exception.PasswordToShortException
-import com.example.rest.businessLayer.exception.TokenExpiredException
-import com.example.rest.businessLayer.exception.UserAlreadyPresentException
-import com.example.rest.businessLayer.exception.UserNotFound
-import com.example.rest.interfaceAdaptersLayer.controllers.dto.createSign.SignDto
+import com.example.rest.interfaceAdaptersLayer.controllers.dto.createSign.SignRequestDto
 import com.example.rest.interfaceAdaptersLayer.controllers.dto.createSign.toDto
 import com.example.rest.interfaceAdaptersLayer.controllers.dto.createSign.toModel
 import io.swagger.v3.oas.annotations.Operation
@@ -31,6 +26,41 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody as SwaggerRequestBod
 class SignsController(
     val userInput: SignsInputBoundary,
 ) {
+    @GetMapping("/signs_types")
+    @Operation(
+        summary = "Get all signs types",
+        description = "Get all signs types from the database. The signs types will be returned in a list.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Signs types retrieved successfully",
+                content =
+                    [
+                        Content(
+                            mediaType = "application/json",
+                            array =
+                                ArraySchema(
+                                    schema = Schema(implementation = String::class),
+                                ),
+                        ),
+                    ],
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Internal server error",
+                content = [Content(mediaType = "application/json")],
+            ),
+        ],
+    )
+    fun allSignsTypes(): HttpEntity<Any> {
+        val result = userInput.allSignsTypes()
+        return if (result.isSuccess) {
+            ResponseEntity(result.getOrNull()!!, HttpStatus.OK)
+        } else {
+            ResponseEntity.internalServerError().build()
+        }
+    }
+
     @Operation(
         summary = "Create a new sign",
         description = "Create a new sign with the given parameters. The sign will be created in the database.",
@@ -44,7 +74,7 @@ class SignsController(
                             mediaType = "application/json",
                             schema =
                                 Schema(
-                                    implementation = SignDto::class,
+                                    implementation = SignRequestDto::class,
                                 ),
                         ),
                     ),
@@ -53,7 +83,7 @@ class SignsController(
             ApiResponse(
                 responseCode = "201",
                 description = "Sign created successfully",
-                content = [Content(mediaType = "application/json", schema = Schema(implementation = SignDto::class))],
+                content = [Content(mediaType = "application/json", schema = Schema(implementation = SignRequestDto::class))],
             ),
             ApiResponse(
                 responseCode = "400",
@@ -69,7 +99,7 @@ class SignsController(
     )
     @PostMapping("/create_sign")
     fun create(
-        @RequestBody requestModel: SignDto,
+        @RequestBody requestModel: SignRequestDto,
     ): HttpEntity<Any> {
         val result = userInput.createSign(requestModel.toModel())
         return if (result.isSuccess) {
@@ -81,12 +111,6 @@ class SignsController(
             ResponseEntity(result.getOrNull()!!.toDto(links), HttpStatus.CREATED)
         } else {
             when (val exception = result.exceptionOrNull()) {
-                is UserAlreadyPresentException ->
-                    ResponseEntity
-                        .status(HttpStatus.CONFLICT)
-                        .body(exception.message)
-
-                is PasswordToShortException -> ResponseEntity.badRequest().body(exception.message)
                 else -> ResponseEntity.internalServerError().build()
             }
         }
@@ -127,7 +151,7 @@ class SignsController(
                             mediaType = "application/json",
                             array =
                                 ArraySchema(
-                                    schema = Schema(implementation = SignDto::class),
+                                    schema = Schema(implementation = SignRequestDto::class),
                                 ),
                         ),
                     ],
@@ -158,12 +182,9 @@ class SignsController(
                     linkTo(WebMvcLinkBuilder.methodOn(SignsController::class.java).getSigns(idRoad, direction, latitude, longitude))
                         .withSelfRel(),
                 )
-            ResponseEntity(result.getOrNull()!!.toDto(links), HttpStatus.OK)
+            ResponseEntity(result.getOrNull()!!.map { it.toDto(listOf()) }.toDto(links), HttpStatus.OK)
         } else {
             when (val exception = result.exceptionOrNull()) {
-                is UserNotFound -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.message)
-                is TokenExpiredException -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.message)
-                is InvalidTokenException -> ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.message)
                 else -> ResponseEntity.internalServerError().build()
             }
         }

@@ -47,6 +47,7 @@ tasks.withType<Test> {
 }
 
 tasks.jar {
+    enabled = false
     manifest {
         attributes(
             mapOf(
