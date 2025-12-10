@@ -117,7 +117,7 @@ class SignsController(
     }
 
     @Operation(
-        summary = "Get signs",
+        summary = "Get signs near a position",
         description = "Get signs from the database with the given parameters. The signs will be returned in a list.",
         parameters = [
             Parameter(
@@ -168,18 +168,80 @@ class SignsController(
             ),
         ],
     )
-    @GetMapping("/signs/{idRoad}/{direction}/{latitude}/{longitude}")
+    @GetMapping("/signs/{idRoad}/{direction}/near/{latitude}/{longitude}")
     fun getSigns(
         @PathVariable idRoad: Int,
         @PathVariable direction: Int,
         @PathVariable latitude: Double,
         @PathVariable longitude: Double,
     ): HttpEntity<Any> {
-        val result = userInput.getSigns(idRoad, direction, latitude, longitude)
+        val result = userInput.getSignsNear(idRoad, direction, latitude, longitude)
         return if (result.isSuccess) {
             val links =
                 listOf(
                     linkTo(WebMvcLinkBuilder.methodOn(SignsController::class.java).getSigns(idRoad, direction, latitude, longitude))
+                        .withSelfRel(),
+                )
+            ResponseEntity(result.getOrNull()!!.map { it.toDto(listOf()) }.toDto(links), HttpStatus.OK)
+        } else {
+            when (val exception = result.exceptionOrNull()) {
+                else -> ResponseEntity.internalServerError().build()
+            }
+        }
+    }
+
+    @Operation(
+        summary = "Get signs",
+        description = "Get signs from the database with the given parameters. The signs will be returned in a list.",
+        parameters = [
+            Parameter(
+                name = "idRoad",
+                description = "The id of the road",
+                required = true,
+            ),
+            Parameter(
+                name = "direction",
+                description = "The direction of the road",
+                required = true,
+            ),
+        ],
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Login successful",
+                content =
+                    [
+                        Content(
+                            mediaType = "application/json",
+                            array =
+                                ArraySchema(
+                                    schema = Schema(implementation = SignRequestDto::class),
+                                ),
+                        ),
+                    ],
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "Bad request",
+                content = [Content(mediaType = "application/json")],
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")],
+            ),
+        ],
+    )
+    @GetMapping("/signs/{idRoad}/{direction}")
+    fun getSigns(
+        @PathVariable idRoad: Int,
+        @PathVariable direction: Int,
+    ): HttpEntity<Any> {
+        val result = userInput.getSigns(idRoad, direction)
+        return if (result.isSuccess) {
+            val links =
+                listOf(
+                    linkTo(WebMvcLinkBuilder.methodOn(SignsController::class.java).getSigns(idRoad, direction))
                         .withSelfRel(),
                 )
             ResponseEntity(result.getOrNull()!!.map { it.toDto(listOf()) }.toDto(links), HttpStatus.OK)

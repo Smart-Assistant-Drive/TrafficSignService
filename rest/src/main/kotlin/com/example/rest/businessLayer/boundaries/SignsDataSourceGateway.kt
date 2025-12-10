@@ -11,4 +11,9 @@ interface SignsDataSourceGateway {
         latitude: Double,
         longitude: Double,
     ): List<SignDataSourceModel>
+
+    fun findSigns(
+        idRoad: Int,
+        direction: Int,
+    ): List<SignDataSourceModel>
 }

@@ -69,6 +69,21 @@ class SignsDataSourceGatewayImpl(
                         ),
                     ),
                 )
+        return getSigns(query)
+    }
+
+    override fun findSigns(
+        idRoad: Int,
+        direction: Int,
+    ): List<SignDataSourceModel> {
+        val query =
+            Document()
+                .append("roadId", idRoad)
+                .append("direction", direction)
+        return getSigns(query)
+    }
+
+    private fun getSigns(query: Document): List<SignDataSourceModel> {
         val signs = mongoTemplate.getCollection("signs").find(query)
         return signs
             .map { doc ->
@@ -77,8 +92,8 @@ class SignsDataSourceGatewayImpl(
                     category = doc.getString("category"),
                     idRoad = doc.getInteger("roadId"),
                     direction = doc.getInteger("direction"),
-                    latitude = (doc.get("position") as Document).getList("coordinates", Double::class.java)[1],
-                    longitude = (doc.get("position") as Document).getList("coordinates", Double::class.java)[0],
+                    latitude = (doc["position"] as Document).getList("coordinates", Double::class.java)[1],
+                    longitude = (doc["position"] as Document).getList("coordinates", Double::class.java)[0],
                     lanes = doc.getString("lanes"),
                     speedLimit = doc.getInteger("speedLimit"),
                     unit = doc.getString("unit"),

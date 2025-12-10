@@ -38,7 +38,7 @@ class SignsUseCase(
         return Result.success(mapToResponse(sign))
     }
 
-    override fun getSigns(
+    override fun getSignsNear(
         idRoad: Int,
         direction: Int,
         latitude: Double,
@@ -50,6 +50,16 @@ class SignsUseCase(
         return Result.success(signModels.map { mapToResponse(it) })
     }
 
+    override fun getSigns(
+        idRoad: Int,
+        direction: Int,
+    ): Result<List<SignModel>> {
+        val signDataSourceModels =
+            signsDataSourceGateway.findSigns(idRoad, direction)
+        val signModels = signDataSourceModels.mapNotNull { mapToModelFromDb(it) }
+        return Result.success(signModels.map { mapToResponse(it) })
+    }
+
     private fun modelToDb(sign: TrafficSign): SignDataSourceModel? {
         val signType = sign.trafficSignType
         val lane = convertFromLaneReference(sign.laneReference)
@@ -57,7 +67,7 @@ class SignsUseCase(
             return null
         }
         return when (signType) {
-            is NoEntrySign ->
+            is NoEntrySign -> {
                 SignDataSourceModel(
                     type = "NoEntrySign",
                     category = signType.category.name,
@@ -69,7 +79,9 @@ class SignsUseCase(
                     speedLimit = null,
                     unit = null,
                 )
-            is MaximumSpeedLimitSign ->
+            }
+
+            is MaximumSpeedLimitSign -> {
                 SignDataSourceModel(
                     type = "MaxSpeedLimitSign",
                     category = signType.category.name,
@@ -81,7 +93,9 @@ class SignsUseCase(
                     speedLimit = signType.maximumSpeedLimit,
                     unit = signType.speedUnit.name,
                 )
-            is MinimumSpeedLimitSign ->
+            }
+
+            is MinimumSpeedLimitSign -> {
                 SignDataSourceModel(
                     type = "MinSpeedLimitSign",
                     category = signType.category.name,
@@ -93,7 +107,9 @@ class SignsUseCase(
                     speedLimit = signType.minimumSpeedLimit,
                     unit = signType.speedUnit.name,
                 )
-            is StopSign ->
+            }
+
+            is StopSign -> {
                 SignDataSourceModel(
                     type = "StopSign",
                     category = signType.category.name,
@@ -105,7 +121,9 @@ class SignsUseCase(
                     speedLimit = null,
                     unit = null,
                 )
-            is YieldSign ->
+            }
+
+            is YieldSign -> {
                 SignDataSourceModel(
                     type = "YieldSign",
                     category = signType.category.name,
@@ -117,8 +135,11 @@ class SignsUseCase(
                     speedLimit = null,
                     unit = null,
                 )
+            }
 
-            else -> null
+            else -> {
+                null
+            }
         }
     }
 
@@ -136,11 +157,13 @@ class SignsUseCase(
 
     private fun mapToModel(signModel: SignModel): TrafficSign? =
         when (signModel.type) {
-            SignTypes.NO_ENTRY ->
+            SignTypes.NO_ENTRY -> {
                 createBaseSignFromSignModel(signModel) {
                     trafficSignType(NoEntrySign)
                 }
-            SignTypes.MAX_SPEED ->
+            }
+
+            SignTypes.MAX_SPEED -> {
                 createBaseSignFromSignModel(signModel) {
                     trafficSignType(
                         MaximumSpeedLimitSign(
@@ -149,7 +172,9 @@ class SignsUseCase(
                         ),
                     )
                 }
-            SignTypes.MIN_SPEED ->
+            }
+
+            SignTypes.MIN_SPEED -> {
                 createBaseSignFromSignModel(signModel) {
                     trafficSignType(
                         MinimumSpeedLimitSign(
@@ -159,15 +184,23 @@ class SignsUseCase(
                         ),
                     )
                 }
-            SignTypes.STOP ->
+            }
+
+            SignTypes.STOP -> {
                 createBaseSignFromSignModel(signModel) {
                     trafficSignType(StopSign(convertToLaneReference(signModel.lanes)))
                 }
-            SignTypes.YIELD ->
+            }
+
+            SignTypes.YIELD -> {
                 createBaseSignFromSignModel(signModel) {
                     trafficSignType(YieldSign(convertToLaneReference(signModel.lanes)))
                 }
-            else -> null
+            }
+
+            else -> {
+                null
+            }
         }
 
     private fun createBaseSignFromSignModel(
@@ -196,11 +229,13 @@ class SignsUseCase(
 
     fun mapToModelFromDb(signDataSourceModel: SignDataSourceModel): TrafficSign? =
         when (signDataSourceModel.type) {
-            SignTypes.NO_ENTRY ->
+            SignTypes.NO_ENTRY -> {
                 createBaseSignFromDB(signDataSourceModel) {
                     trafficSignType(NoEntrySign)
                 }
-            SignTypes.MAX_SPEED ->
+            }
+
+            SignTypes.MAX_SPEED -> {
                 createBaseSignFromDB(signDataSourceModel) {
                     trafficSignType(
                         MaximumSpeedLimitSign(
@@ -209,7 +244,9 @@ class SignsUseCase(
                         ),
                     )
                 }
-            SignTypes.MIN_SPEED ->
+            }
+
+            SignTypes.MIN_SPEED -> {
                 createBaseSignFromDB(signDataSourceModel) {
                     trafficSignType(
                         MinimumSpeedLimitSign(
@@ -219,15 +256,23 @@ class SignsUseCase(
                         ),
                     )
                 }
-            SignTypes.STOP ->
+            }
+
+            SignTypes.STOP -> {
                 createBaseSignFromDB(signDataSourceModel) {
                     trafficSignType(StopSign(convertToLaneReference(signDataSourceModel.lanes)))
                 }
-            SignTypes.YIELD ->
+            }
+
+            SignTypes.YIELD -> {
                 createBaseSignFromDB(signDataSourceModel) {
                     trafficSignType(YieldSign(convertToLaneReference(signDataSourceModel.lanes)))
                 }
-            else -> null
+            }
+
+            else -> {
+                null
+            }
         }
 
     fun mapToResponse(sign: TrafficSign): SignModel =
@@ -255,20 +300,28 @@ class SignsUseCase(
 
     private fun convertToLaneReference(lanes: String): LaneReference =
         when {
-            lanes == "all" -> AllLaneReference
+            lanes == "all" -> {
+                AllLaneReference
+            }
+
             lanes.startsWith("-") -> {
                 val end = lanes.substring(1).trim().toInt()
                 ToLaneReference(end)
             }
+
             lanes.endsWith("-") -> {
                 val start = lanes.substring(0, lanes.length - 1).trim().toInt()
                 FromLaneReference(start)
             }
+
             lanes.contains("-") -> {
                 val (start, end) = lanes.split("-").map { it.trim().toInt() }
                 RangeLaneReference(start, end)
             }
-            else -> SingleLaneReference(lanes.toInt())
+
+            else -> {
+                SingleLaneReference(lanes.toInt())
+            }
         }
 
     private fun convertFromLaneReference(lanes: LaneReference): String? =

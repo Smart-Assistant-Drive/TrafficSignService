@@ -7,10 +7,15 @@ interface SignsInputBoundary {
 
     fun createSign(requestModel: SignModel): Result<SignModel>
 
-    fun getSigns(
+    fun getSignsNear(
         idRoad: Int,
         direction: Int,
         latitude: Double,
         longitude: Double,
+    ): Result<List<SignModel>>
+
+    fun getSigns(
+        idRoad: Int,
+        direction: Int,
     ): Result<List<SignModel>>
 }
