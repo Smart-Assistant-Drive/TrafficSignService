@@ -26,16 +26,20 @@ class SignsUseCase(
     override fun allSignsTypes(): Result<List<String>> = Result.success(AllSigns.listOfType)
 
     override fun createSign(requestModel: SignModel): Result<SignModel> {
-        val sign = mapToModel(requestModel)
-        if (sign == null) {
-            return Result.failure(IllegalArgumentException("Invalid sign type"))
+        try {
+            val sign = mapToModel(requestModel)
+            if (sign == null) {
+                return Result.failure(IllegalArgumentException("Invalid sign type"))
+            }
+            val signDataSourceModel = modelToDb(sign)
+            if (signDataSourceModel == null) {
+                return Result.failure(IllegalArgumentException("Invalid sign data source model"))
+            }
+            signsDataSourceGateway.save(signDataSourceModel)
+            return Result.success(mapToResponse(sign))
+        } catch (e: Exception) {
+            return Result.failure(e)
         }
-        val signDataSourceModel = modelToDb(sign)
-        if (signDataSourceModel == null) {
-            return Result.failure(IllegalArgumentException("Invalid sign data source model"))
-        }
-        signsDataSourceGateway.save(signDataSourceModel)
-        return Result.success(mapToResponse(sign))
     }
 
     override fun getSignsNear(
@@ -62,7 +66,7 @@ class SignsUseCase(
 
     private fun modelToDb(sign: TrafficSign): SignDataSourceModel? {
         val signType = sign.trafficSignType
-        val lane = convertFromLaneReference(sign.laneReference)
+        val lane = convertFromLaneReference(sign.trafficSignType.laneReference)
         if (lane == null) {
             return null
         }
@@ -283,7 +287,7 @@ class SignsUseCase(
             direction = sign.directionId,
             latitude = sign.geoLocationPosition.latitude,
             longitude = sign.geoLocationPosition.longitude,
-            lanes = convertFromLaneReference(sign.laneReference)!!,
+            lanes = convertFromLaneReference(sign.trafficSignType.laneReference)!!,
             speedLimit =
                 when (val speedLimit = sign.trafficSignType) {
                     is MaximumSpeedLimitSign -> speedLimit.maximumSpeedLimit
