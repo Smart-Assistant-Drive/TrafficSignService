@@ -6,14 +6,14 @@ interface SignsDataSourceGateway {
     fun save(requestModel: SignDataSourceModel)
 
     fun findSigns(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
         latitude: Double,
         longitude: Double,
     ): List<SignDataSourceModel>
 
     fun findSigns(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
     ): List<SignDataSourceModel>
 }

@@ -3,7 +3,7 @@ package com.example.rest.businessLayer.adapter.sign
 data class SignDataSourceModel(
     val type: String,
     val category: String,
-    val idRoad: Int,
+    val idRoad: String,
     val direction: Int,
     val latitude: Double,
     val longitude: Double,

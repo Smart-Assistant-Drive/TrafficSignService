@@ -12,7 +12,7 @@ data class SignRequestDto
         @param:JsonProperty("category")
         val category: String,
         @param:JsonProperty("idRoad")
-        val idRoad: Int,
+        val idRoad: String,
         @param:JsonProperty("direction")
         val direction: Int,
         @param:JsonProperty("latitude")

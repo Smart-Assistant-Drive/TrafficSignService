@@ -52,7 +52,7 @@ class SignsDataSourceGatewayImpl(
     }
 
     override fun findSigns(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
         latitude: Double,
         longitude: Double,
@@ -70,7 +70,7 @@ class SignsDataSourceGatewayImpl(
     }
 
     override fun findSigns(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
     ): List<SignDataSourceModel> {
         val query =
@@ -90,7 +90,7 @@ class SignsDataSourceGatewayImpl(
                 SignDataSourceModel(
                     type = doc.getString("type"),
                     category = doc.getString("category"),
-                    idRoad = doc.getInteger("roadId"),
+                    idRoad = doc.getString("roadId"),
                     direction = doc.getInteger("direction"),
                     longitude = pos[0] as Double,
                     latitude = pos[1] as Double,
