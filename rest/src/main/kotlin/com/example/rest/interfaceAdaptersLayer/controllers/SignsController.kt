@@ -170,7 +170,7 @@ class SignsController(
     )
     @GetMapping("/signs/{idRoad}/{direction}/near/{latitude}/{longitude}")
     fun getSigns(
-        @PathVariable idRoad: Int,
+        @PathVariable idRoad: String,
         @PathVariable direction: Int,
         @PathVariable latitude: Double,
         @PathVariable longitude: Double,
@@ -234,7 +234,7 @@ class SignsController(
     )
     @GetMapping("/signs/{idRoad}/{direction}")
     fun getSigns(
-        @PathVariable idRoad: Int,
+        @PathVariable idRoad: String,
         @PathVariable direction: Int,
     ): HttpEntity<Any> {
         val result = userInput.getSigns(idRoad, direction)

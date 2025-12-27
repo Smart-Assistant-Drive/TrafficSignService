@@ -43,7 +43,7 @@ class SignsUseCase(
     }
 
     override fun getSignsNear(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
         latitude: Double,
         longitude: Double,
@@ -55,7 +55,7 @@ class SignsUseCase(
     }
 
     override fun getSigns(
-        idRoad: Int,
+        idRoad: String,
         direction: Int,
     ): Result<List<SignModel>> {
         val signDataSourceModels =
