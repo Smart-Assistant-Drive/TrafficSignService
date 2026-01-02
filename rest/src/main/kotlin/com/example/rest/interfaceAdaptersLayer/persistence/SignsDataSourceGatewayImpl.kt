@@ -85,15 +85,15 @@ class SignsDataSourceGatewayImpl(
 
         return signs
             .map { doc ->
-                val pos = doc["position"] as List<*>
+                val pos = doc.getList("position", Number::class.java)
 
                 SignDataSourceModel(
                     type = doc.getString("type"),
                     category = doc.getString("category"),
                     idRoad = doc.getString("roadId"),
                     direction = doc.getInteger("direction"),
-                    longitude = pos[0] as Double,
-                    latitude = pos[1] as Double,
+                    longitude = pos[0].toDouble(),
+                    latitude = pos[1].toDouble(),
                     lanes = doc.getString("lanes"),
                     speedLimit = doc.getInteger("speedLimit"),
                     unit = doc.getString("unit"),
